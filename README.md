@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FinanceOS
 
-## Getting Started
+Personal finance management app with Next.js, MongoDB, NextAuth, shadcn/ui, and Recharts.
 
-First, run the development server:
+## Features
+
+- Single-user authentication (credentials + bcrypt)
+- Salary allocation planning
+- Expense tracking with smart alerts
+- Investment portfolio tracking
+- Monthly reports with charts
+- **Bilingual UI**: German (Deutsch) and Arabic (العربية) with RTL support for Arabic
+- Dark mode
+
+## Setup
+
+1. Copy environment variables:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Generate a bcrypt password hash:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npx tsx scripts/hash-password.ts your_password
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Set `.env.local`:
 
-## Learn More
+```
+MONGODB_URI=mongodb://localhost:27017/finance-os
+NEXTAUTH_SECRET=your_secret
+NEXTAUTH_URL=http://localhost:3000
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=<paste hash here>
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. Install and run:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm install
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open [http://localhost:3000](http://localhost:3000) and sign in.
 
-## Deploy on Vercel
+## Language
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Use the globe icon in the navbar to switch between **Deutsch** and **العربية**. Arabic enables RTL layout automatically.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tech stack
+
+- Next.js 16 (App Router)
+- Tailwind CSS + shadcn/ui
+- MongoDB + Mongoose
+- NextAuth.js (JWT, credentials)
+- Recharts
+- TypeScript
+
+## Money storage
+
+All amounts are stored in **cents** (integer) to avoid floating-point errors. The UI displays values divided by 100.
