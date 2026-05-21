@@ -31,7 +31,7 @@ export function Sidebar({ className }: { className?: string }) {
   return (
     <aside
       className={cn(
-        "hidden md:flex w-60 flex-col bg-sidebar text-sidebar-foreground max-h-screen h-full sticky top-0 shrink-0 border-r border-sidebar-border",
+        "hidden md:flex w-60 flex-col bg-sidebar text-sidebar-foreground min-h-[100vh] h-full sticky top-0 shrink-0 border-r border-sidebar-border",
         className
       )}
     >
