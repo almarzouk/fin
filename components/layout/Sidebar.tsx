@@ -31,30 +31,47 @@ export function Sidebar({ className }: { className?: string }) {
   return (
     <aside
       className={cn(
-        "hidden md:flex w-56 flex-col border-e border-border bg-sidebar text-sidebar-foreground",
+        "hidden md:flex w-60 flex-col bg-sidebar text-sidebar-foreground max-h-screen h-full sticky top-0 shrink-0 border-r border-sidebar-border",
         className
       )}
     >
-      <nav className="flex flex-1 flex-col gap-1 p-4">
+      {/* Brand */}
+      <div className="flex items-center gap-3 px-5 py-5 border-b border-sidebar-border">
+        <div className="flex items-center justify-center size-9 rounded-xl bg-primary/15 text-primary shrink-0">
+          <Wallet className="size-5" />
+        </div>
+        <div className="leading-tight">
+          <p className="text-sm font-bold text-sidebar-foreground">{t.app.title}</p>
+          <p className="text-[10px] text-sidebar-foreground/40 truncate">{t.app.subtitle}</p>
+        </div>
+      </div>
+
+      {/* Nav */}
+      <nav className="flex flex-1 flex-col gap-0.5 p-3">
         {links.map(({ href, icon: Icon, key }) => {
-          const active = pathname === href;
+          const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
           return (
             <Link
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
                 active
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-foreground"
+                  ? "bg-primary/15 text-primary shadow-sm"
+                  : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
               )}
             >
-              <Icon className="size-4" />
+              <Icon className={cn("size-4 shrink-0", active ? "text-primary" : "")} />
               {t.nav[key]}
             </Link>
           );
         })}
       </nav>
+
+      {/* Footer */}
+      <div className="px-4 py-3 border-t border-sidebar-border">
+        <p className="text-[10px] text-sidebar-foreground/30 text-center">Finance OS</p>
+      </div>
     </aside>
   );
 }

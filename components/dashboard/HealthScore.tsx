@@ -12,27 +12,47 @@ interface HealthScoreProps {
   loading?: boolean;
 }
 
-function ScoreBadge({ score }: { score: number }) {
+function CircleScore({ score }: { score: number }) {
+  const radius = 36;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (score / 100) * circumference;
   const color =
-    score >= 80 ? "text-green-600 bg-green-500/10 border-green-500/30" :
-    score >= 60 ? "text-blue-600 bg-blue-500/10 border-blue-500/30" :
-    score >= 40 ? "text-amber-600 bg-amber-500/10 border-amber-500/30" :
-                  "text-red-600 bg-red-500/10 border-red-500/30";
+    score >= 80 ? "#22c55e" :
+    score >= 60 ? "#6366f1" :
+    score >= 40 ? "#f59e0b" :
+                  "#ef4444";
+  const textColor =
+    score >= 80 ? "text-emerald-500" :
+    score >= 60 ? "text-indigo-500" :
+    score >= 40 ? "text-amber-500" :
+                  "text-red-500";
+
   return (
-    <div className={cn("flex items-center justify-center size-16 rounded-full border-2 text-2xl font-extrabold shrink-0", color)}>
-      {score}
+    <div className="relative flex items-center justify-center size-24 shrink-0">
+      <svg className="size-24 -rotate-90" viewBox="0 0 88 88">
+        <circle cx="44" cy="44" r={radius} fill="none" strokeWidth="7" className="stroke-muted" />
+        <circle
+          cx="44" cy="44" r={radius} fill="none" strokeWidth="7"
+          stroke={color}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          style={{ transition: "stroke-dashoffset 0.6s ease" }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className={cn("text-2xl font-extrabold tabular-nums leading-none", textColor)}>{score}</span>
+        <span className="text-[10px] text-muted-foreground">/100</span>
+      </div>
     </div>
   );
 }
 
-function MiniBar({ value, max, color }: { value: number; max: number; color: string }) {
+function MiniBar({ value, max, colorClass }: { value: number; max: number; colorClass: string }) {
   const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-        <div className={cn("h-full rounded-full", color)} style={{ width: `${pct}%` }} />
-      </div>
-      <span className="text-xs font-mono w-8 text-end">{value}/{max}</span>
+    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+      <div className={cn("h-full rounded-full transition-all duration-500", colorClass)} style={{ width: `${pct}%` }} />
     </div>
   );
 }
@@ -53,9 +73,13 @@ export function HealthScore({ score, loading }: HealthScoreProps) {
 
   if (loading) {
     return (
-      <Card>
+      <Card className="card-glow">
         <CardHeader><Skeleton className="h-4 w-32" /></CardHeader>
-        <CardContent><Skeleton className="h-24 w-full" /></CardContent>
+        <CardContent className="space-y-3">
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-3 w-full" />
+          <Skeleton className="h-3 w-3/4" />
+        </CardContent>
       </Card>
     );
   }
@@ -69,40 +93,44 @@ export function HealthScore({ score, loading }: HealthScoreProps) {
                         hs.needsWork;
 
   const rows = [
-    { icon: TrendingUp,   label: hs.investment,   value: score.breakdown.investment,   max: 25, color: "bg-violet-500" },
-    { icon: Shield,       label: hs.emergencyFund, value: score.breakdown.emergencyFund,max: 30, color: "bg-amber-500"  },
-    { icon: PiggyBank,    label: hs.savings,       value: score.breakdown.savings,      max: 25, color: "bg-green-500"  },
-    { icon: ShoppingBag,  label: hs.spending,      value: score.breakdown.spending,     max: 20, color: "bg-blue-500"   },
+    { icon: TrendingUp,  label: hs.investment,    value: score.breakdown.investment,    max: 25, colorClass: "bg-indigo-500"  },
+    { icon: Shield,      label: hs.emergencyFund,  value: score.breakdown.emergencyFund, max: 30, colorClass: "bg-amber-500"   },
+    { icon: PiggyBank,   label: hs.savings,        value: score.breakdown.savings,       max: 25, colorClass: "bg-emerald-500" },
+    { icon: ShoppingBag, label: hs.spending,       value: score.breakdown.spending,      max: 20, colorClass: "bg-sky-500"     },
   ];
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{hs.title}</CardTitle>
+    <Card className="card-glow">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{hs.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-4">
-          <ScoreBadge score={score.total} />
-          <div>
-            <p className="text-lg font-bold">{label}</p>
-            <p className="text-xs text-muted-foreground">{hs.outOf100}</p>
+        <div className="flex items-center gap-5">
+          <CircleScore score={score.total} />
+          <div className="flex-1 space-y-2.5">
+            <div>
+              <p className="text-lg font-bold leading-tight">{label}</p>
+              <p className="text-xs text-muted-foreground">{hs.outOf100}</p>
+            </div>
+            <div className="space-y-2">
+              {rows.map(({ icon: Icon, label: rowLabel, value, max, colorClass }) => (
+                <div key={rowLabel} className="space-y-0.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <Icon className="size-3 text-muted-foreground" />
+                      <span className="text-[11px] text-muted-foreground">{rowLabel}</span>
+                    </div>
+                    <span className="text-[11px] font-mono text-muted-foreground">{value}/{max}</span>
+                  </div>
+                  <MiniBar value={value} max={max} colorClass={colorClass} />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="space-y-3">
-          {rows.map(({ icon: Icon, label: rowLabel, value, max, color }) => (
-            <div key={rowLabel}>
-              <div className="flex items-center gap-1.5 mb-1">
-                <Icon className="size-3 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">{rowLabel}</span>
-              </div>
-              <MiniBar value={value} max={max} color={color} />
-            </div>
-          ))}
-        </div>
-
         {score.tips.length > 0 && (
-          <div className="rounded-lg bg-muted/40 p-3 space-y-1.5">
+          <div className="rounded-xl bg-primary/5 border border-primary/10 p-3 space-y-1.5">
             {score.tips.slice(0, 2).map((tip) => {
               const key = TIP_KEYS[tip];
               if (!key) return null;
@@ -112,7 +140,7 @@ export function HealthScore({ score, loading }: HealthScoreProps) {
               const msg = section?.[parts[1]];
               return msg ? (
                 <p key={tip} className="text-xs text-muted-foreground leading-relaxed">
-                  • {msg}
+                  💡 {msg}
                 </p>
               ) : null;
             })}
